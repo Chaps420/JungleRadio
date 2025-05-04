@@ -5,224 +5,324 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Jungle Radio - Music Requests</title>
+
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
   <style>
+    :root {
+      --background: 20 14.3% 4.1%;
+      --foreground: 60 9.1% 97.8%;
+      --muted: 12 6.5% 15.1%;
+      --muted-foreground: 24 5.4% 63.9%;
+      --card: 20 14.3% 4.1%;
+      --card-foreground: 60 9.1% 97.8%;
+      --border: 12 6.5% 15.1%;
+      --input: 12 6.5% 15.1%;
+      --primary: 20.5 90.2% 48.2%;
+      --primary-foreground: 60 9.1% 97.8%;
+      --secondary: 12 6.5% 15.1%;
+      --secondary-foreground: 60 9.1% 97.8%;
+      --accent: 20.5 90.2% 48.2%;
+      --accent-foreground: 60 9.1% 97.8%;
+      --destructive: 0 84.2% 60.2%;
+      --destructive-foreground: 60 9.1% 97.8%;
+      --ring: 20.5 90.2% 48.2%;
+      --radius: 0.5rem;
+      --flame-red: 0 84% 60%;
+      --flame-orange: 24.6 95% 53%;
+      --flame-yellow: 35.5 91.7% 32.9%;
+      --jungle-dark: 0 0% 9%;
+    }
+
     body {
-      font-family: Arial, sans-serif;
-      background-color: #1a1a1a;
-      color: #ffffff;
+      font-family: 'Montserrat', sans-serif;
+      background-color: hsl(var(--background));
+      color: hsl(var(--foreground));
       margin: 0;
-      padding: 20px;
-      line-height: 1.6;
+      min-height: 100vh;
+      position: relative;
     }
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
+
+    .font-cinzel {
+      font-family: 'Cinzel', serif;
     }
-    h1 {
-      text-align: center;
-      color: #f4a261;
-      background-color: #ff0000; /* Bright red to confirm file loads */
-      padding: 10px;
+
+    .flame-text {
+      background: linear-gradient(to bottom, #f59e0b, #b91c1c);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
     }
-    h2 {
-      text-align: center;
-      color: #f4a261;
+
+    .flame-card {
+      background: linear-gradient(to top right, rgba(185, 28, 28, 0.3), rgba(234, 88, 12, 0.1));
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(234, 88, 12, 0.2);
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(245, 158, 11, 0.1);
+      border-radius: var(--radius);
     }
-    .debug {
-      color: #e76f51;
-      text-align: center;
-      margin-bottom: 20px;
-      font-weight: bold;
+
+    @keyframes flame {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-5px) scale(1.05); }
     }
-    .form-section, .requests-section {
-      margin-bottom: 40px;
+
+    @keyframes glow {
+      0% { filter: drop-shadow(0 0 2px #F59E0B); }
+      100% { filter: drop-shadow(0 0 10px #F59E0B); }
     }
-    .form-group {
-      margin-bottom: 15px;
+
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.97; }
     }
-    label {
-      display: block;
-      margin-bottom: 5px;
-      color: #e9c46a;
+
+    .animate-flame {
+      animation: flame 3s ease-in-out infinite;
     }
-    input {
+
+    .animate-phoenix-glow {
+      animation: glow 2s ease-in-out infinite alternate;
+    }
+
+    .flame-background {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      padding: 10px;
-      border: 1px solid #e76f51;
+      height: 100%;
+      z-index: -1;
+      background: linear-gradient(rgba(23, 23, 23, 0.85), rgba(23, 23, 23, 0.95));
+      animation: flicker 4s infinite alternate;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(23, 23, 23, 0.5);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: rgba(234, 88, 12, 0.6);
       border-radius: 4px;
-      background-color: #2a2a2a;
-      color: #ffffff;
-      font-size: 16px;
-      box-sizing: border-box;
-    }
-    input:focus {
-      outline: none;
-      border-color: #f4a261;
-    }
-    button {
-      padding: 10px 20px;
-      background-color: #f4a261;
-      color: #1a1a1a;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      font-size: 16px;
-    }
-    button:hover {
-      background-color: #e9c46a;
-    }
-    button:disabled {
-      background-color: #555;
-      cursor: not-allowed;
-    }
-    .error {
-      color: #e76f51;
-      font-size: 14px;
-      margin-top: 5px;
-    }
-    .request-item {
-      background-color: #2a2a2a;
-      padding: 15px;
-      margin-bottom: 15px;
-      border-radius: 4px;
-      border: 1px solid #e76f51;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-    .request-item.played {
-      opacity: 0.6;
-    }
-    .request-info a {
-      color: #f4a261;
-      text-decoration: none;
-    }
-    .request-info a:hover {
-      text-decoration: underline;
-    }
-    .request-actions {
-      display: flex;
-      gap: 10px;
-    }
-    .played-tag {
-      background-color: #f4a261;
-      color: #1a1a1a;
-      padding: 5px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-    }
-    .admin-toggle {
-      text-align: center;
-      margin-bottom: 20px;
-    }
-    .no-js {
-      text-align: center;
-      color: #e76f51;
-    }
-    @media (max-width: 600px) {
-      .request-item {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 10px;
-      }
-      .request-actions {
-        width: 100%;
-        justify-content: flex-end;
-      }
     }
   </style>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            background: 'hsl(var(--background))',
+            foreground: 'hsl(var(--foreground))',
+            primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))' },
+            amber: { '500': '#f59e0b' },
+            red: { '700': '#b91c1c' },
+            orange: { '600': '#ea580c' },
+            jungle: { 'dark': 'hsl(var(--jungle-dark))' }
+          }
+        }
+      }
+    }
+  </script>
 </head>
 <body>
-  <div class="container">
-    <h1>Jungle Radio - Music Requests</h1>
-    <p class="debug">Debug: index.html loaded on GitHub Pages</p>
-    <noscript>
-      <p class="no-js">JavaScript is required to use this page. Please enable JavaScript.</p>
-    </noscript>
+  <!-- Flame Background -->
+  <div class="flame-background"></div>
 
-    <!-- Admin Toggle -->
-    <div class="admin-toggle">
-      <button id="toggle-admin">Toggle Admin Mode</button>
-    </div>
+  <div class="container mx-auto px-4 py-8">
+    <!-- Header with Phoenix Logo -->
+    <header class="flex items-center justify-center mb-10">
+      <div class="w-12 h-12 mr-3 animate-phoenix-glow">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-full h-full">
+          <defs>
+            <radialGradient id="phoenixGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+              <stop offset="0%" stop-color="#FFF082" />
+              <stop offset="40%" stop-color="#F59E0B" />
+              <stop offset="100%" stop-color="#B91C1C" />
+            </radialGradient>
+          </defs>
+          <g transform="translate(50 50)">
+            <path d="M0,-30 C15,-25 25,-15 25,0 C25,15 15,25 0,30 C-15,25 -25,15 -25,0 C-25,-15 -15,-25 0,-30 Z" fill="url(#phoenixGradient)" />
+            <path d="M-5,-10 C-25,-30 -40,-20 -45,-5 C-25,-10 -15,0 -5,10 Z" fill="url(#phoenixGradient)" />
+            <path d="M5,-10 C25,-30 40,-20 45,-5 C25,-10 15,0 5,10 Z" fill="url(#phoenixGradient)" />
+            <path d="M-10,15 C-5,25 0,35 0,40 C0,35 5,25 10,15" fill="url(#phoenixGradient)" />
+            <circle cx="0" cy="-20" r="5" fill="#FFF082" />
+            <path d="M0,-20 L4,-17 L0,-14 L-4,-17 Z" fill="#B91C1C" />
+          </g>
+        </svg>
+      </div>
+      <h1 class="text-4xl font-cinzel font-bold flame-text">Jungle Radio</h1>
+    </header>
 
-    <!-- Form Section -->
-    <section class="form-section">
-      <h2>Submit a Song</h2>
-      <form id="request-form">
-        <div class="form-group">
-          <label for="url">Music Link (YouTube or Spotify)</label>
-          <input
-            type="url"
-            id="url"
-            name="url"
-            placeholder="Paste YouTube or Spotify link here"
-            required
-            aria-describedby="url-error"
-          >
-          <div id="url-error" class="error"></div>
+    <!-- Main Content -->
+    <main class="max-w-2xl mx-auto">
+      <!-- Form Section -->
+      <section class="mb-12">
+        <div class="flame-card p-6 md:p-8">
+          <h2 class="text-3xl font-cinzel mb-6 text-center flame-text">Submit a Song</h2>
+          <form id="request-form" class="space-y-4">
+            <div>
+              <label class="text-white/80 block mb-2">Music Link (YouTube or Spotify)</label>
+              <input
+                type="url"
+                id="url"
+                name="url"
+                class="w-full px-4 py-3 bg-jungle-dark/60 border border-orange-600/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 placeholder-gray-400 text-white"
+                placeholder="Paste YouTube or Spotify link here"
+                required
+                aria-describedby="url-error"
+              >
+              <div id="url-error" class="error mt-1"></div>
+            </div>
+            <div>
+              <label class="text-white/80 block mb-2">Your Name (Optional)</label>
+              <input
+                type="text"
+                id="name"
+                name="requesterName"
+                class="w-full px-4 py-3 bg-jungle-dark/60 border border-orange-600/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 placeholder-gray-400 text-white"
+                placeholder="Your name (optional)"
+                maxlength="50"
+              >
+            </div>
+            <button
+              type="submit"
+              id="submit-btn"
+              class="w-full py-4 px-6 bg-gradient-to-b from-amber-500 to-red-700 rounded-md font-bold text-white hover:opacity-90 transition-all duration-300 shadow-lg shadow-red-700/20 flex items-center justify-center space-x-2 animate-flame"
+            >
+              <span>Submit Request</span>
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
+                <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path>
+              </svg>
+            </button>
+          </form>
         </div>
-        <div class="form-group">
-          <label for="name">Your Name (Optional)</label>
-          <input
-            type="text"
-            id="name"
-            name="requesterName"
-            placeholder="Your name (optional)"
-            maxlength="50"
-          >
-        </div>
-        <button type="submit" id="submit-btn">Submit Request</button>
-      </form>
-    </section>
+      </section>
 
-    <!-- Requests Section -->
-    <section class="requests-section">
-      <h2>Requested Songs</h2>
-      <div id="requests-list">Loading requests...</div>
-    </section>
+      <!-- Admin Toggle -->
+      <div class="admin-toggle text-center mb-6">
+        <button
+          id="toggle-admin"
+          class="py-2 px-4 bg-gradient-to-b from-amber-500 to-red-700 rounded-md font-bold text-white hover:opacity-90 transition-all duration-300"
+        >Toggle Admin Mode</button>
+      </div>
+
+      <!-- Requests Section -->
+      <section class="requests-section">
+        <div class="flame-card p-6 md:p-8">
+          <h2 class="text-3xl font-cinzel mb-6 text-center flame-text">Requested Songs</h2>
+          <div id="requests-list" class="space-y-4"></div>
+        </div>
+      </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-12 text-center text-white/50 text-sm">
+      <p>Designed with the Jungle Radio flame aesthetic</p>
+    </footer>
   </div>
 
   <script>
-    console.log('Debug: JavaScript loaded');
-    console.log('Debug: Page URL:', window.location.href);
-
     // Admin password
     const ADMIN_PASSWORD = 'admin123';
     let isAdmin = false;
 
+    // Extract song title from URL
+    function extractSongTitle(url) {
+      try {
+        const urlObj = new URL(url);
+        let title = '';
+
+        // YouTube: Check query params or path
+        if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
+          const params = new URLSearchParams(urlObj.search);
+          title = params.get('title') || params.get('v') || urlObj.pathname.split('/').pop();
+        }
+        // Spotify: Check path
+        else if (urlObj.hostname.includes('spotify.com')) {
+          const pathParts = urlObj.pathname.split('/');
+          const trackIndex = pathParts.indexOf('track');
+          title = trackIndex !== -1 && pathParts[trackIndex + 1]
+            ? pathParts[trackIndex + 1]
+            : urlObj.pathname.split('/').pop();
+        }
+
+        // Clean up title
+        if (title) {
+          title = decodeURIComponent(title)
+            .replace(/[-_]/g, ' ')
+            .replace(/[^a-zA-Z0-9 ]/g, '')
+            .trim();
+          return title || 'Untitled';
+        }
+        return 'Untitled';
+      } catch (error) {
+        console.error('Error extracting title:', error);
+        return 'Untitled';
+      }
+    }
+
     // Load requests from localStorage
     function loadRequests() {
-      console.log('Debug: Loading requests');
       const list = document.getElementById('requests-list');
       list.innerHTML = '';
       try {
         const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
         if (requests.length === 0) {
-          list.innerHTML = '<p>No requests yet.</p>';
+          list.innerHTML = '<p class="text-white/80 text-center">No requests yet.</p>';
           return;
         }
         requests.forEach(request => {
           const item = document.createElement('div');
-          item.className = `request-item ${request.isProcessed ? 'played' : ''}`;
+          item.className = `flame-card rounded-md p-4 hover:border-amber-500/40 transition-all ${request.isProcessed ? 'opacity-60' : ''}`;
           item.innerHTML = `
-            <div class="request-info">
-              <h3>${request.title || 'Untitled'}</h3>
-              <p>${request.requesterName || 'Anonymous'}</p>
-              <a href="${request.url}" target="_blank" rel="noopener noreferrer">View Link</a>
-              ${request.isProcessed ? '<div class="played-tag">Played</div>' : ''}
+            <div class="flex items-start space-x-3">
+              <div class="flex-shrink-0 w-12 h-12 bg-jungle-dark/50 rounded flex items-center justify-center">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500">
+                  <path d="M9 18V5l12-2v13"></path>
+                  <circle cx="6" cy="18" r="3"></circle>
+                  <circle cx="18" cy="16" r="3"></circle>
+                </svg>
+              </div>
+              <div class="flex-grow">
+                <h3 class="font-semibold text-amber-500 truncate">${request.title || 'Untitled'}</h3>
+                <p class="text-sm text-white/80 truncate">Added by: ${request.requesterName || 'Anonymous'}</p>
+                <a href="${request.url}" target="_blank" rel="noopener noreferrer" class="text-amber-500 hover:underline truncate block">${request.url}</a>
+                ${request.isProcessed ? '<span class="text-xs px-2 py-1 bg-amber-500/20 text-amber-500 rounded-full">Played</span>' : ''}
+              </div>
+              ${
+                isAdmin
+                  ? `
+                    <div class="flex-shrink-0 flex space-x-2">
+                      <button class="mark-played py-1 px-2 bg-gradient-to-b from-amber-500 to-red-700 rounded-md text-white text-sm ${request.isProcessed ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}" data-id="${request.id}" ${request.isProcessed ? 'disabled' : ''}>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polygon points="10 8 16 12 10 16 10 8"></polygon>
+                        </svg>
+                        Mark Played
+                      </button>
+                      <button class="delete py-1 px-2 bg-red-700 rounded-md text-white text-sm hover:opacity-90" data-id="${request.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1">
+                          <polyline points="3 6 5 6 21 6"></polyline>
+                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                          <line x1="10" y1="11" x2="10" y2="17"></line>
+                          <line x1="14" y1="11" x2="14" y2="17"></line>
+                        </svg>
+                        Delete
+                      </button>
+                    </div>
+                  `
+                  : ''
+              }
             </div>
-            ${
-              isAdmin
-                ? `
-                  <div class="request-actions">
-                    <button class="mark-played" data-id="${request.id}" ${
-                      request.isProcessed ? 'disabled' : ''
-                    }>Mark as Played</button>
-                    <button class="delete" data-id="${request.id}">Delete</button>
-                  </div>
-                `
-                : ''
-            }
           `;
           list.appendChild(item);
         });
@@ -250,7 +350,7 @@
         }
       } catch (error) {
         console.error('Error loading requests:', error);
-        list.innerHTML = '<p class="error">Error loading requests. Please refresh.</p>';
+        list.innerHTML = '<p class="text-white/80 text-center">Error loading requests. Please refresh.</p>';
       }
     }
 
@@ -278,7 +378,6 @@
     // Handle form submission
     document.getElementById('request-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      console.log('Debug: Form submitted');
       const url = document.getElementById('url').value;
       const name = document.getElementById('name').value;
       const submitBtn = document.getElementById('submit-btn');
@@ -293,7 +392,7 @@
       submitBtn.textContent = 'Submitting...';
 
       try {
-        const title = url.split('/').pop().replace(/[^a-zA-Z0-9 ]/g, ' ').trim() || 'Untitled';
+        const title = extractSongTitle(url);
         const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
         const newRequest = {
           id: generateId(),
@@ -333,7 +432,6 @@
     });
 
     // Initial load
-    console.log('Debug: Initializing page');
     loadRequests();
   </script>
 </body>
