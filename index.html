@@ -18,9 +18,21 @@
       max-width: 800px;
       margin: 0 auto;
     }
-    h1, h2 {
+    h1 {
       text-align: center;
       color: #f4a261;
+      background-color: #ff0000; /* Bright red to confirm file loads */
+      padding: 10px;
+    }
+    h2 {
+      text-align: center;
+      color: #f4a261;
+    }
+    .debug {
+      color: #e76f51;
+      text-align: center;
+      margin-bottom: 20px;
+      font-weight: bold;
     }
     .form-section, .requests-section {
       margin-bottom: 40px;
@@ -46,7 +58,6 @@
     input:focus {
       outline: none;
       border-color: #f4a261;
-      box-shadow: 0 0 5px rgba(244, 162, 97, 0.5);
     }
     button {
       padding: 10px 20px;
@@ -123,9 +134,10 @@
 </head>
 <body>
   <div class="container">
-    <h1>Jungle Radio</h1>
+    <h1>Jungle Radio - Music Requests</h1>
+    <p class="debug">Debug: index.html loaded on GitHub Pages</p>
     <noscript>
-      <p class="no-js">JavaScript is required to use this page. Please enable JavaScript in your browser.</p>
+      <p class="no-js">JavaScript is required to use this page. Please enable JavaScript.</p>
     </noscript>
 
     <!-- Admin Toggle -->
@@ -166,30 +178,29 @@
     <!-- Requests Section -->
     <section class="requests-section">
       <h2>Requested Songs</h2>
-      <div id="requests-list"></div>
+      <div id="requests-list">Loading requests...</div>
     </section>
   </div>
 
   <script>
-    console.log('JavaScript loaded'); // Debug: Confirm script runs
+    console.log('Debug: JavaScript loaded');
+    console.log('Debug: Page URL:', window.location.href);
 
-    // Admin password (hardcoded for simplicity; not secure for public use)
+    // Admin password
     const ADMIN_PASSWORD = 'admin123';
     let isAdmin = false;
 
     // Load requests from localStorage
     function loadRequests() {
-      console.log('Loading requests'); // Debug
+      console.log('Debug: Loading requests');
+      const list = document.getElementById('requests-list');
+      list.innerHTML = '';
       try {
         const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
-        const list = document.getElementById('requests-list');
-        list.innerHTML = '';
-
         if (requests.length === 0) {
           list.innerHTML = '<p>No requests yet.</p>';
           return;
         }
-
         requests.forEach(request => {
           const item = document.createElement('div');
           item.className = `request-item ${request.isProcessed ? 'played' : ''}`;
@@ -204,11 +215,9 @@
               isAdmin
                 ? `
                   <div class="request-actions">
-                    <button
-                      class="mark-played"
-                      data-id="${request.id}"
-                      ${request.isProcessed ? 'disabled' : ''}
-                    >Mark as Played</button>
+                    <button class="mark-played" data-id="${request.id}" ${
+                      request.isProcessed ? 'disabled' : ''
+                    }>Mark as Played</button>
                     <button class="delete" data-id="${request.id}">Delete</button>
                   </div>
                 `
@@ -217,8 +226,6 @@
           `;
           list.appendChild(item);
         });
-
-        // Add event listeners for admin actions
         if (isAdmin) {
           document.querySelectorAll('.mark-played').forEach(btn => {
             btn.addEventListener('click', (e) => {
@@ -231,7 +238,6 @@
               loadRequests();
             });
           });
-
           document.querySelectorAll('.delete').forEach(btn => {
             btn.addEventListener('click', (e) => {
               const id = e.target.dataset.id;
@@ -244,8 +250,7 @@
         }
       } catch (error) {
         console.error('Error loading requests:', error);
-        document.getElementById('requests-list').innerHTML =
-          '<p class="error">Error loading requests. Please refresh the page.</p>';
+        list.innerHTML = '<p class="error">Error loading requests. Please refresh.</p>';
       }
     }
 
@@ -255,17 +260,17 @@
       return regex.test(url);
     }
 
-    // Show error message
+    // Show error
     function showError(elementId, message) {
       document.getElementById(elementId).textContent = message;
     }
 
-    // Clear error message
+    // Clear error
     function clearError(elementId) {
       document.getElementById(elementId).textContent = '';
     }
 
-    // Generate unique ID
+    // Generate ID
     function generateId() {
       return Date.now().toString() + Math.random().toString(36).substr(2, 9);
     }
@@ -273,7 +278,7 @@
     // Handle form submission
     document.getElementById('request-form').addEventListener('submit', (e) => {
       e.preventDefault();
-      console.log('Form submitted'); // Debug
+      console.log('Debug: Form submitted');
       const url = document.getElementById('url').value;
       const name = document.getElementById('name').value;
       const submitBtn = document.getElementById('submit-btn');
@@ -288,10 +293,7 @@
       submitBtn.textContent = 'Submitting...';
 
       try {
-        // Simulate title extraction
         const title = url.split('/').pop().replace(/[^a-zA-Z0-9 ]/g, ' ').trim() || 'Untitled';
-
-        // Save to localStorage
         const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
         const newRequest = {
           id: generateId(),
@@ -303,8 +305,6 @@
         };
         requests.push(newRequest);
         localStorage.setItem('musicRequests', JSON.stringify(requests));
-
-        // Reset form and refresh list
         document.getElementById('request-form').reset();
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Request';
@@ -332,8 +332,8 @@
       }
     });
 
-    // Load requests on page load
-    console.log('Initializing page'); // Debug
+    // Initial load
+    console.log('Debug: Initializing page');
     loadRequests();
   </script>
 </body>
