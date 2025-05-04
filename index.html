@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
-  <title>Jungle Radio - Music Requests</title>
+  <title>Jungle Radio Request Line</title>
 
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
@@ -159,7 +159,7 @@
           </g>
         </svg>
       </div>
-      <h1 class="text-4xl font-cinzel font-bold flame-text">Jungle Radio</h1>
+      <h1 class="text-4xl font-cinzel font-bold flame-text">Jungle Radio Request Line</h1>
     </header>
 
     <!-- Main Content -->
@@ -232,7 +232,7 @@
 
   <script>
     // Admin password
-    const ADMIN_PASSWORD = 'admin123';
+    const ADMIN_PASSWORD = 'FPT589';
     let isAdmin = false;
 
     // Extract song title from URL
@@ -284,7 +284,7 @@
           const item = document.createElement('div');
           item.className = `flame-card rounded-md p-4 hover:border-amber-500/40 transition-all ${request.isProcessed ? 'opacity-60' : ''}`;
           item.innerHTML = `
-            <div class="flex items-start space-x-3">
+            <div class="flex items-center space-x-3">
               <div class="flex-shrink-0 w-12 h-12 bg-jungle-dark/50 rounded flex items-center justify-center">
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500">
                   <path d="M9 18V5l12-2v13"></path>
@@ -301,13 +301,13 @@
               ${
                 isAdmin
                   ? `
-                    <div class="flex-shrink-0 flex space-x-2">
+                    <div class="flex-shrink-0 flex space-x-2 ml-2">
                       <button class="mark-played py-1 px-2 bg-gradient-to-b from-amber-500 to-red-700 rounded-md text-white text-sm ${request.isProcessed ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}" data-id="${request.id}" ${request.isProcessed ? 'disabled' : ''}>
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1">
                           <circle cx="12" cy="12" r="10"></circle>
                           <polygon points="10 8 16 12 10 16 10 8"></polygon>
                         </svg>
-                        Mark Played
+                        Play
                       </button>
                       <button class="delete py-1 px-2 bg-red-700 rounded-md text-white text-sm hover:opacity-90" data-id="${request.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-1">
@@ -432,6 +432,39 @@
     });
 
     // Initial load
+    function extractSongTitle(url) {
+      try {
+        const urlObj = new URL(url);
+        let title = '';
+
+        // YouTube: Check query params or path
+        if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
+          const params = new URLSearchParams(urlObj.search);
+          title = params.get('title') || params.get('v') || urlObj.pathname.split('/').pop();
+        }
+        // Spotify: Check path
+        else if (urlObj.hostname.includes('spotify.com')) {
+          const pathParts = urlObj.pathname.split('/');
+          const trackIndex = pathParts.indexOf('track');
+          title = trackIndex !== -1 && pathParts[trackIndex + 1]
+            ? pathParts[trackIndex + 1]
+            : urlObj.pathname.split('/').pop();
+        }
+
+        // Clean up title
+        if (title) {
+          title = decodeURIComponent(title)
+            .replace(/[-_]/g, ' ')
+            .replace(/[^a-zA-Z0-9 ]/g, '')
+            .trim();
+          return title || 'Untitled';
+        }
+        return 'Untitled';
+      } catch (error) {
+        console.error('Error extracting title:', error);
+        return 'Untitled';
+      }
+    }
     loadRequests();
   </script>
 </body>
