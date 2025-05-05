@@ -179,47 +179,26 @@
           <h2 class="text-3xl font-cinzel mb-6 text-center flame-text">Submit a Song</h2>
           <form id="request-form" class="space-y-4">
             <div>
-              <label class="text-white/80 block mb-2">Music Link (YouTube or Spotify, optional)</label>
+              <label class="text-white/80 block mb-2">Music Link (YouTube or Spotify)</label>
               <input
                 type="url"
                 id="url"
                 name="url"
                 class="w-full px-4 py-3 bg-jungle-dark/60 border border-orange-600/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 placeholder-gray-400 text-white"
-                placeholder="Paste YouTube or Spotify link (optional)"
+                placeholder="Paste YouTube or Spotify link here"
+                required
                 aria-describedby="url-error"
               >
               <div id="url-error" class="error mt-1 text-red-500"></div>
             </div>
             <div>
-              <label class="text-white/80 block mb-2">Song Title (optional if link provided)</label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                class="w-full px-4 py-3 bg-jungle-dark/60 border border-orange-600/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 placeholder-gray-400 text-white"
-                placeholder="Song title"
-                maxlength="100"
-              >
-            </div>
-            <div>
-              <label class="text-white/80 block mb-2">Artist (optional)</label>
-              <input
-                type="text"
-                id="artist"
-                name="artist"
-                class="w-full px-4 py-3 bg-jungle-dark/60 border border-orange-600/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 placeholder-gray-400 text-white"
-                placeholder="Artist name"
-                maxlength="100"
-              >
-            </div>
-            <div>
-              <label class="text-white/80 block mb-2">Your Name (optional)</label>
+              <label class="text-white/80 block mb-2">Your Name (Optional)</label>
               <input
                 type="text"
                 id="name"
                 name="requesterName"
                 class="w-full px-4 py-3 bg-jungle-dark/60 border border-orange-600/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 placeholder-gray-400 text-white"
-                placeholder="Your name"
+                placeholder="Your name (optional)"
                 maxlength="50"
               >
             </div>
@@ -256,18 +235,72 @@
   </div>
 
   <script>
-    const API_BASE_URL = 'https://jungle-radio-backend.onrender.com'; // e.g., https://jungle-radio-backend.onrender.com
+    // Admin password
     const ADMIN_PASSWORD = 'FPT589';
     let isAdmin = false;
+
+    // Extract song title from URL
+    function extractSongTitle(url) {
+      try {
+        const urlObj = new URL(url);
+        const params = new URLSearchParams(urlObj.search);
+        let title = '';
+
+        // YouTube
+        if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
+          // Check query parameters for title-like data
+          title = params.get('title') || params.get('t') || params.get('name');
+          if (!title) {
+            // Try to extract from path or video ID
+            const pathParts = urlObj.pathname.split('/').filter(Boolean);
+            if (urlObj.hostname.includes('youtu.be')) {
+              title = pathParts[0]; // e.g., dQw4w9WgXcQ
+            } else {
+              title = params.get('v') || pathParts[pathParts.indexOf('watch') + 1] || '';
+            }
+            // Clean up potential ID
+            title = title
+              ? decodeURIComponent(title)
+                  .replace(/[-_]/g, ' ')
+                  .replace(/[^a-zA-Z0-9 ]/g, '')
+                  .trim()
+              : '';
+          }
+          return title || 'YouTube Song';
+        }
+        // Spotify
+        else if (urlObj.hostname.includes('spotify.com')) {
+          const pathParts = urlObj.pathname.split('/').filter(Boolean);
+          const trackIndex = pathParts.indexOf('track');
+          title = trackIndex !== -1 && pathParts[trackIndex + 1]
+            ? pathParts[trackIndex + 1]
+            : pathParts[pathParts.indexOf('embed') + 2] || pathParts.pop() || '';
+          title = title
+            ? decodeURIComponent(title)
+                .replace(/[-_]/g, ' ')
+                .replace(/[^a-zA-Z0-9 ]/g, '')
+                .trim()
+            : '';
+          return title || 'Spotify Song';
+        }
+        return 'Unknown Song';
+      } catch (error) {
+        console.error('Error extracting title:', error);
+        return 'Unknown Song';
+      }
+    }
 
     // Generate embed URL for preview
     function getEmbedUrl(url) {
       try {
         const urlObj = new URL(url);
+        // YouTube
         if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
           const videoId = urlObj.searchParams.get('v') || urlObj.pathname.split('/').pop();
           return videoId ? `https://www.youtube.com/embed/${videoId}?controls=1` : null;
-        } else if (urlObj.hostname.includes('spotify.com')) {
+        }
+        // Spotify
+        else if (urlObj.hostname.includes('spotify.com')) {
           const pathParts = urlObj.pathname.split('/').filter(Boolean);
           const trackIndex = pathParts.indexOf('track');
           const trackId = trackIndex !== -1 ? pathParts[trackIndex + 1] : null;
@@ -280,13 +313,12 @@
       }
     }
 
-    // Load requests from backend
-    async function loadRequests() {
+    // Load requests from localStorage
+    function loadRequests() {
       const list = document.getElementById('requests-list');
       list.innerHTML = '';
       try {
-        const response = await fetch(`${API_BASE_URL}/api/songs`);
-        const requests = await response.json();
+        const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
         if (requests.length === 0) {
           list.innerHTML = '<p class="text-white/80 text-center text-sm">No requests yet.</p>';
           return;
@@ -294,7 +326,7 @@
         requests.forEach(request => {
           const item = document.createElement('div');
           item.className = `flame-card rounded-md p-3 hover:border-amber-500/40 transition-all ${request.isProcessed ? 'opacity-60' : ''}`;
-          const embedUrl = request.url ? getEmbedUrl(request.url) : null;
+          const embedUrl = getEmbedUrl(request.url);
           item.innerHTML = `
             <div class="flex items-center space-x-2">
               <div class="flex-shrink-0 w-10 h-10 bg-jungle-dark/50 rounded flex items-center justify-center">
@@ -306,17 +338,8 @@
               </div>
               <div class="flex-grow">
                 <h3 class="font-semibold text-amber-500 text-sm truncate">${request.title || 'Unknown Song'}</h3>
-                ${
-                  request.artist
-                    ? `<p class="text-xs text-white/80 truncate">Artist: ${request.artist}</p>`
-                    : ''
-                }
                 <p class="text-xs text-white/80 truncate">Added by: ${request.requesterName || 'Anonymous'}</p>
-                ${
-                  request.url
-                    ? `<a href="${request.url}" target="_blank" rel="noopener noreferrer" class="text-amber-500 hover:underline text-xs truncate block">${request.url}</a>`
-                    : ''
-                }
+                <a href="${request.url}" target="_blank" rel="noopener noreferrer" class="text-amber-500 hover:underline text-xs truncate block">${request.url}</a>
                 ${request.isProcessed ? '<span class="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-500 rounded-full">Played</span>' : ''}
                 ${
                   embedUrl
@@ -359,36 +382,28 @@
           `;
           list.appendChild(item);
         });
-        document.querySelectorAll('.mark-played').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-            const id = e.target.dataset.id;
-            try {
-              const response = await fetch(`${API_BASE_URL}/api/songs/${id}/mark-played`, {
-                method: 'POST',
-                headers: { 'x-admin-password': ADMIN_PASSWORD },
-              });
-              if (!response.ok) throw new Error('Failed to mark played');
+        if (isAdmin) {
+          document.querySelectorAll('.mark-played').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const id = e.target.dataset.id;
+              const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
+              const updatedRequests = requests.map(req =>
+                req.id === id ? { ...req, isProcessed: true } : req
+              );
+              localStorage.setItem('musicRequests', JSON.stringify(updatedRequests));
               loadRequests();
-            } catch (error) {
-              alert('Error marking song as played');
-            }
+            });
           });
-        });
-        document.querySelectorAll('.delete').forEach(btn => {
-          btn.addEventListener('click', async (e) => {
-            const id = e.target.dataset.id;
-            try {
-              const response = await fetch(`${API_BASE_URL}/api/songs/${id}`, {
-                method: 'DELETE',
-                headers: { 'x-admin-password': ADMIN_PASSWORD },
-              });
-              if (!response.ok) throw new Error('Failed to delete');
+          document.querySelectorAll('.delete').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+              const id = e.target.dataset.id;
+              const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
+              const updatedRequests = requests.filter(req => req.id !== id);
+              localStorage.setItem('musicRequests', JSON.stringify(updatedRequests));
               loadRequests();
-            } catch (error) {
-              alert('Error deleting song');
-            }
+            });
           });
-        });
+        }
         document.querySelectorAll('.preview-btn').forEach(btn => {
           btn.addEventListener('click', (e) => {
             const id = e.target.dataset.id;
@@ -403,13 +418,10 @@
       }
     }
 
-    // Validate submission
-    function validateSubmission(url, title) {
-      if (!url && !title) return 'URL or song title required';
-      if (url && !url.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|spotify\.com)/i)) {
-        return 'Invalid URL';
-      }
-      return null;
+    // Validate URL
+    function isValidMusicUrl(url) {
+      const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|spotify\.com)/i;
+      return regex.test(url);
     }
 
     // Show error
@@ -422,19 +434,21 @@
       document.getElementById(elementId).textContent = '';
     }
 
+    // Generate ID
+    function generateId() {
+      return Date.now().toString() + Math.random().toString(36).substr(2, 9);
+    }
+
     // Handle form submission
-    document.getElementById('request-form').addEventListener('submit', async (e) => {
+    document.getElementById('request-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const url = document.getElementById('url').value;
-      const title = document.getElementById('title').value;
-      const artist = document.getElementById('artist').value;
       const name = document.getElementById('name').value;
       const submitBtn = document.getElementById('submit-btn');
 
       clearError('url-error');
-      const error = validateSubmission(url, title);
-      if (error) {
-        showError('url-error', error);
+      if (!isValidMusicUrl(url)) {
+        showError('url-error', 'Please enter a valid YouTube or Spotify link');
         return;
       }
 
@@ -442,15 +456,18 @@
       submitBtn.textContent = 'Submitting...';
 
       try {
-        const response = await fetch(`${API_BASE_URL}/api/songs`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ url, title, artist, requesterName: name }),
-        });
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Failed to submit');
-        }
+        const title = extractSongTitle(url);
+        const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
+        const newRequest = {
+          id: generateId(),
+          url,
+          title,
+          requesterName: name || null,
+          createdAt: new Date().toISOString(),
+          isProcessed: false,
+        };
+        requests.push(newRequest);
+        localStorage.setItem('musicRequests', JSON.stringify(requests));
         document.getElementById('request-form').reset();
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Request';
@@ -458,30 +475,22 @@
         loadRequests();
       } catch (error) {
         console.error('Error submitting request:', error);
-        showError('url-error', error.message);
+        showError('url-error', 'Failed to submit request. Please try again.');
         submitBtn.disabled = false;
         submitBtn.textContent = 'Submit Request';
       }
     });
 
     // Handle admin toggle
-    document.getElementById('toggle-admin').addEventListener('click', async () => {
-      if (isAdmin) {
-        isAdmin = false;
-        document.getElementById('toggle-admin').textContent = 'Toggle Admin Mode';
-        loadRequests();
-        return;
-      }
+    document.getElementById('toggle-admin').addEventListener('click', () => {
       const password = prompt('Enter admin password:');
-      try {
-        const response = await fetch(`${API_BASE_URL}/api/songs`, {
-          headers: { 'x-admin-password': password },
-        });
-        if (!response.ok) throw new Error('Incorrect password');
-        isAdmin = true;
-        document.getElementById('toggle-admin').textContent = 'Exit Admin Mode';
+      if (password === ADMIN_PASSWORD) {
+        isAdmin = !isAdmin;
+        document.getElementById('toggle-admin').textContent = isAdmin
+          ? 'Exit Admin Mode'
+          : 'Toggle Admin Mode';
         loadRequests();
-      } catch (error) {
+      } else {
         alert('Incorrect password');
       }
     });
