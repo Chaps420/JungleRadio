@@ -12,6 +12,10 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database.js"></script>
+
   <style>
     :root {
       --background: 0 100% 10%; /* Near-black with red hint (#1a0000) */
@@ -317,13 +321,13 @@
           <h2 class="text-3xl font-cinzel mb-6 text-center text-[#ff4500]">Submit a Song</h2>
           <form id="request-form" class="space-y-4">
             <div>
-              <label class="text-white/80 block mb-2">Music Link (YouTube or Spotify, optional)</label>
+              <label class="text-white/80 block mb-2">Music Link (YouTube, YouTube Music, or Spotify, optional)</label>
               <input
                 type="url"
                 id="url"
                 name="url"
                 class="w-full px-4 py-3 bg-jungle-dark/60 border border-[#ff4500]/50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff4500]/50 placeholder-gray-400 text-white"
-                placeholder="Paste YouTube or Spotify link (optional)"
+                placeholder="Paste YouTube, YouTube Music, or Spotify link (optional)"
                 aria-describedby="url-error"
               >
               <div id="url-error" class="error mt-1 text-[#ff0000]"></div>
@@ -394,6 +398,21 @@
   </div>
 
   <script>
+    // Firebase Configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBiwWy-J_C83MWeD88ZODIw2H6r2suUPTY",
+      authDomain: "fpt-radio.firebaseapp.com",
+      databaseURL: "https://fpt-radio-default-rtdb.firebaseio.com",
+      projectId: "fpt-radio",
+      storageBucket: "fpt-radio.firebasestorage.app",
+      messagingSenderId: "121288710296",
+      appId: "1:121288710296:web:041addd1c3a91f2c8f58ed"
+    };
+
+    // Initialize Firebase
+    firebase.initializeApp(firebaseConfig);
+    const database = firebase.database();
+
     // Admin password
     const ADMIN_PASSWORD = 'FPT589';
     let isAdmin = false;
@@ -406,8 +425,8 @@
         const params = new URLSearchParams(urlObj.search);
         let title = '';
 
-        // YouTube
-        if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
+        // YouTube or YouTube Music
+        if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be') || urlObj.hostname.includes('music.youtube.com')) {
           title = params.get('title') || params.get('t') || params.get('name');
           if (!title) {
             const pathParts = urlObj.pathname.split('/').filter(Boolean);
@@ -423,7 +442,7 @@
                   .trim()
               : '';
           }
-          return title || 'YouTube Song';
+          return title || (urlObj.hostname.includes('music.youtube.com') ? 'YouTube Music Song' : 'YouTube Song');
         }
         // Spotify
         else if (urlObj.hostname.includes('spotify.com')) {
@@ -452,8 +471,8 @@
       if (!url) return null; // No preview if no URL
       try {
         const urlObj = new URL(url);
-        // YouTube
-        if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
+        // YouTube or YouTube Music
+        if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be') || urlObj.hostname.includes('music.youtube.com')) {
           const videoId = urlObj.searchParams.get('v') || urlObj.pathname.split('/').pop();
           return videoId ? `https://www.youtube.com/embed/${videoId}?controls=1` : null;
         }
@@ -471,94 +490,105 @@
       }
     }
 
-    // Load requests from localStorage
+    // Load requests from Firebase
     function loadRequests() {
       const list = document.getElementById('requests-list');
       list.innerHTML = '';
       try {
-        const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
-        if (requests.length === 0) {
-          list.innerHTML = '<p class="text-white/80 text-center text-sm">No requests yet.</p>';
-          return;
-        }
-        requests.forEach(request => {
-          const item = document.createElement('div');
-          item.className = `flame-card rounded-md p-3 hover:border-[#ff4500]/40 transition-all`;
-          const embedUrl = getEmbedUrl(request.url);
-          item.innerHTML = `
-            <div class="flex items-center space-x-2">
-              <div class="flex-shrink-0 w-10 h-10 bg-jungle-dark/50 rounded flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#ff4500]">
-                  <path d="M9 18V5l12-2v13"></path>
-                  <circle cx="6" cy="18" r="3"></circle>
-                  <circle cx="18" cy="16" r="3"></circle>
-                </svg>
-              </div>
-              <div class="flex-grow">
-                <h3 class="font-semibold text-[#ff4500] text-sm truncate">${request.title || 'Unknown Song'}</h3>
+        database.ref('songs').on('value', (snapshot) => {
+          list.innerHTML = '';
+          const requests = snapshot.val();
+          if (!requests) {
+            list.innerHTML = '<p class="text-white/80 text-center text-sm">No requests yet.</p>';
+            return;
+          }
+          const requestArray = Object.keys(requests).map(key => ({
+            id: key,
+            ...requests[key]
+          }));
+          requestArray.forEach(request => {
+            const item = document.createElement('div');
+            item.className = `flame-card rounded-md p-3 hover:border-[#ff4500]/40 transition-all`;
+            const embedUrl = getEmbedUrl(request.url);
+            item.innerHTML = `
+              <div class="flex items-center space-x-2">
+                <div class="flex-shrink-0 w-10 h-10 bg-jungle-dark/50 rounded flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#ff4500]">
+                    <path d="M9 18V5l12-2v13"></path>
+                    <circle cx="6" cy="18" r="3"></circle>
+                    <circle cx="18" cy="16" r="3"></circle>
+                  </svg>
+                </div>
+                <div class="flex-grow">
+                  <h3 class="font-semibold text-[#ff4500] text-sm truncate">${request.title || 'Unknown Song'}</h3>
+                  ${
+                    request.artist
+                      ? `<p class="text-xs text-white/80 truncate">Artist: ${request.artist}</p>`
+                      : ''
+                  }
+                  <p class="text-xs text-white/80 truncate">Added by: ${request.requesterName || 'Anonymous'}</p>
+                  ${
+                    request.url
+                      ? `<a href="${request.url}" target="_blank" rel="noopener noreferrer" class="text-[#ff4500] hover:underline text-xs song-url">${request.url}</a>`
+                      : ''
+                  }
+                  ${
+                    embedUrl
+                      ? `<button class="preview-btn mt-1 py-0.5 px-2 bg-jungle-dark/50 rounded-md text-white text-xs hover:bg-jungle-dark/70 animate-flame" data-id="${request.id}">Preview</button>`
+                      : ''
+                  }
+                </div>
                 ${
-                  request.artist
-                    ? `<p class="text-xs text-white/80 truncate">Artist: ${request.artist}</p>`
-                    : ''
-                }
-                <p class="text-xs text-white/80 truncate">Added by: ${request.requesterName || 'Anonymous'}</p>
-                ${
-                  request.url
-                    ? `<a href="${request.url}" target="_blank" rel="noopener noreferrer" class="text-[#ff4500] hover:underline text-xs song-url">${request.url}</a>`
-                    : ''
-                }
-                ${
-                  embedUrl
-                    ? `<button class="preview-btn mt-1 py-0.5 px-2 bg-jungle-dark/50 rounded-md text-white text-xs hover:bg-jungle-dark/70 animate-flame" data-id="${request.id}">Preview</button>`
+                  isAdmin
+                    ? `
+                      <div class="flex-shrink-0 flex space-x-1 ml-2">
+                        <button class="delete py-0.5 px-1 bg-[#ff0000] rounded-md text-white text-xs hover:opacity-90 animate-flame" data-id="${request.id}">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-0.5">
+                            <polyline points="3 6 5 6 21 6"></polyline>
+                            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            <line x1="10" y1="11" x2="10" y2="17"></line>
+                            <line x1="14" y1="11" x2="14" y2="17"></line>
+                          </svg>
+                          Delete
+                        </button>
+                      </div>
+                    `
                     : ''
                 }
               </div>
               ${
-                isAdmin
-                  ? `
-                    <div class="flex-shrink-0 flex space-x-1 ml-2">
-                      <button class="delete py-0.5 px-1 bg-[#ff0000] rounded-md text-white text-xs hover:opacity-90 animate-flame" data-id="${request.id}">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-0.5">
-                          <polyline points="3 6 5 6 21 6"></polyline>
-                          <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                          <line x1="10" y1="11" x2="10" y2="17"></line>
-                          <line x1="14" y1="11" x2="14" y2="17"></line>
-                        </svg>
-                        Delete
-                      </button>
-                    </div>
-                  `
+                embedUrl
+                  ? `<div class="song-preview" data-id="${request.id}">
+                      <iframe class="w-full h-20 rounded-md" src="${embedUrl}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    </div>`
                   : ''
               }
-            </div>
-            ${
-              embedUrl
-                ? `<div class="song-preview" data-id="${request.id}">
-                    <iframe class="w-full h-20 rounded-md" src="${embedUrl}" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-                  </div>`
-                : ''
-            }
-          `;
-          list.appendChild(item);
-        });
-        if (isAdmin) {
-          document.querySelectorAll('.delete').forEach(btn => {
+            `;
+            list.appendChild(item);
+          });
+          if (isAdmin) {
+            document.querySelectorAll('.delete').forEach(btn => {
+              btn.addEventListener('click', (e) => {
+                const id = e.target.dataset.id;
+                database.ref(`songs/${id}`).remove()
+                  .catch(error => {
+                    console.error('Error deleting request:', error);
+                    alert('Failed to delete request. Please try again.');
+                  });
+              });
+            });
+          }
+          document.querySelectorAll('.preview-btn').forEach(btn => {
             btn.addEventListener('click', (e) => {
               const id = e.target.dataset.id;
-              const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
-              const updatedRequests = requests.filter(req => req.id !== id);
-              localStorage.setItem('musicRequests', JSON.stringify(updatedRequests));
-              loadRequests();
+              const preview = document.querySelector(`.song-preview[data-id="${request.id}"]`);
+              preview.classList.toggle('active');
+              e.target.textContent = preview.classList.contains('active') ? 'Hide Preview' : 'Preview';
             });
           });
-        }
-        document.querySelectorAll('.preview-btn').forEach(btn => {
-          btn.addEventListener('click', (e) => {
-            const id = e.target.dataset.id;
-            const preview = document.querySelector(`.song-preview[data-id="${id}"]`);
-            preview.classList.toggle('active');
-            e.target.textContent = preview.classList.contains('active') ? 'Hide Preview' : 'Preview';
-          });
+        }, (error) => {
+          console.error('Error loading requests:', error);
+          list.innerHTML = '<p class="text-white/80 text-center text-sm">Error loading requests. Please refresh.</p>';
         });
       } catch (error) {
         console.error('Error loading requests:', error);
@@ -569,10 +599,10 @@
     // Validate submission
     function validateSubmission(url, title) {
       if (!url && !title) {
-        return 'Please provide either a YouTube/Spotify link or a song title';
+        return 'Please provide either a YouTube, YouTube Music, or Spotify link or a song title';
       }
-      if (url && !url.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|spotify\.com)/i)) {
-        return 'Please enter a valid YouTube or Spotify link';
+      if (url && !url.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|music\.youtube\.com|spotify\.com)/i)) {
+        return 'Please enter a valid YouTube, YouTube Music, or Spotify link';
       }
       return null;
     }
@@ -613,22 +643,26 @@
 
       try {
         const songTitle = title || extractSongTitle(url) || 'Unknown Song';
-        const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
         const newRequest = {
-          id: generateId(),
           url: url || null,
           title: songTitle,
           artist: artist || null,
           requesterName: name || 'Anonymous',
-          createdAt: new Date().toISOString(),
+          createdAt: new Date().toISOString()
         };
-        requests.push(newRequest);
-        localStorage.setItem('musicRequests', JSON.stringify(requests));
-        document.getElementById('request-form').reset();
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Submit Request';
-        alert('Request submitted successfully!');
-        loadRequests();
+        database.ref('songs').push(newRequest)
+          .then(() => {
+            document.getElementById('request-form').reset();
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Request';
+            alert('Request submitted successfully!');
+          })
+          .catch(error => {
+            console.error('Error submitting request:', error);
+            showError('url-error', 'Failed to submit request. Please try again.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Submit Request';
+          });
       } catch (error) {
         console.error('Error submitting request:', error);
         showError('url-error', 'Failed to submit request. Please try again.');
