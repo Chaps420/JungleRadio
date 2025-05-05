@@ -7,35 +7,41 @@
   <title>Jungle Radio Request Line</title>
 
   <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Montserrat:wght@300;400;600&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
 
   <style>
     :root {
-      --background: 20 14.3% 4.1%;
+      --background: 0 100% 10%; /* Near-black with red hint (#1a0000) */
       --foreground: 60 9.1% 97.8%;
       --muted: 12 6.5% 15.1%;
       --muted-foreground: 24 5.4% 63.9%;
-      --card: 20 14.3% 4.1%;
+      --card: 0 100% 10%;
       --card-foreground: 60 9.1% 97.8%;
       --border: 12 6.5% 15.1%;
       --input: 12 6.5% 15.1%;
-      --primary: 20.5 90.2% 48.2%;
+      --primary: 16 100% 50%; /* #ff4500 */
       --primary-foreground: 60 9.1% 97.8%;
       --secondary: 12 6.5% 15.1%;
       --secondary-foreground: 60 9.1% 97.8%;
-      --accent: 20.5 90.2% 48.2%;
+      --accent: 0 100% 50%; /* #ff0000 */
       --accent-foreground: 60 9.1% 97.8%;
-      --destructive: 0 84.2% 60.2%;
+      --destructive: 0 100% 50%;
       --destructive-foreground: 60 9.1% 97.8%;
-      --ring: 20.5 90.2% 48.2%;
+      --ring: 16 100% 50%;
       --radius: 0.5rem;
-      --flame-red: 0 84% 60%;
-      --flame-orange: 24.6 95% 53%;
-      --flame-yellow: 35.5 91.7% 32.9%;
-      --jungle-dark: 0 0% 9%;
+      --fiery-red: 0 100% 50%; /* #ff0000 */
+      --fiery-orange: 16 100% 50%; /* #ff4500 */
+      --fiery-dark: 24 100% 40%; /* #cc3300 */
+      --jungle-dark: 0 100% 10%; /* #1a0000 */
+      --font-size: 64px;
+      --padding: 10px 20px;
+      --letter-spacing: 2px;
+      --shadow1: 5px; /* Tighter for bright outline */
+      --shadow2: 10px;
+      --shadow3: 20px;
     }
 
     body {
@@ -48,23 +54,87 @@
     }
 
     .font-cinzel {
-      font-family: 'Cinzel', serif;
+      font-family: 'Cinzel Decorative', cursive;
     }
 
-    .flame-text {
-      background: linear-gradient(to bottom, #f59e0b, #b91c1c);
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-      text-shadow: 0 0 10px rgba(245, 158, 11, 0.5);
+    .fiery-text {
+      font-family: 'Cinzel Decorative', cursive;
+      font-size: var(--font-size);
+      color: #ff4500; /* Match Submit a Song and Requested Songs */
+      -webkit-text-stroke: 1.5px var(--fiery-red); /* Bright fire red outline */
+      text-align: center;
+      position: relative;
+      display: inline-block;
+      padding: var(--padding);
+      text-transform: uppercase;
+      letter-spacing: var(--letter-spacing);
+      text-shadow: 
+        0 0 2px var(--fiery-red),
+        0 0 var(--shadow1) var(--fiery-red),
+        0 0 var(--shadow2) var(--fiery-orange),
+        0 0 var(--shadow3) var(--fiery-dark);
+      animation: 
+        textFlicker 1.2s infinite,
+        outlinePulse 1.5s infinite;
+    }
+
+    @keyframes textFlicker {
+      0% { 
+        text-shadow: 
+          0 0 2px var(--fiery-red),
+          0 0 var(--shadow1) var(--fiery-red),
+          0 0 var(--shadow2) var(--fiery-orange),
+          0 0 var(--shadow3) var(--fiery-dark);
+        transform: scale(1);
+      }
+      50% { 
+        text-shadow: 
+          0 0 4px var(--fiery-red),
+          0 0 calc(var(--shadow1) * 1.2) var(--fiery-red),
+          0 0 calc(var(--shadow2) * 1.2) var(--fiery-orange),
+          0 0 calc(var(--shadow3) * 1.2) var(--fiery-dark);
+        transform: scale(1.02);
+      }
+      100% { 
+        text-shadow: 
+          0 0 2px var(--fiery-red),
+          0 0 var(--shadow1) var(--fiery-red),
+          0 0 var(--shadow2) var(--fiery-orange),
+          0 0 var(--shadow3) var(--fiery-dark);
+        transform: scale(1);
+      }
+    }
+
+    @keyframes outlinePulse {
+      0% { 
+        text-shadow: 
+          0 0 2px var(--fiery-red),
+          0 0 var(--shadow1) var(--fiery-red),
+          0 0 var(--shadow2) var(--fiery-orange),
+          0 0 var(--shadow3) var(--fiery-dark);
+      }
+      50% { 
+        text-shadow: 
+          0 0 5px var(--fiery-red),
+          0 0 var(--shadow1) var(--fiery-red),
+          0 0 var(--shadow2) var(--fiery-orange),
+          0 0 var(--shadow3) var(--fiery-dark);
+      }
+      100% { 
+        text-shadow: 
+          0 0 2px var(--fiery-red),
+          0 0 var(--shadow1) var(--fiery-red),
+          0 0 var(--shadow2) var(--fiery-orange),
+          0 0 var(--shadow3) var(--fiery-dark);
+      }
     }
 
     .flame-card {
-      background: linear-gradient(to top right, rgba(185, 28, 28, 0.3), rgba(234, 88, 12, 0.1));
-      backdrop-filter: blur(4px);
-      border: 1px solid rgba(234, 88, 12, 0.2);
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3), inset 0 0 15px rgba(245, 158, 11, 0.1);
+      background-color: #000000; /* Solid black background */
+      border: 2px solid var(--fiery-red); /* Bright red outline */
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.3); /* Subtle red glow */
       border-radius: var(--radius);
+      padding: 1.5rem;
     }
 
     @keyframes flame {
@@ -73,8 +143,8 @@
     }
 
     @keyframes glow {
-      0% { filter: drop-shadow(0 0 2px #F59E0B); }
-      100% { filter: drop-shadow(0 0 10px #F59E0B); }
+      0% { filter: drop-shadow(0 0 2px #ff4500); }
+      100% { filter: drop-shadow(0 0 10px #ff4500); }
     }
 
     @keyframes flicker {
@@ -84,6 +154,7 @@
 
     .animate-flame {
       animation: flame 3s ease-in-out infinite;
+      touch-action: manipulation;
     }
 
     .animate-phoenix-glow {
@@ -97,7 +168,7 @@
       width: 100%;
       height: 100%;
       z-index: -1;
-      background: linear-gradient(rgba(23, 23, 23, 0.85), rgba(23, 23, 23, 0.95));
+      background: linear-gradient(rgba(26, 0, 0, 0.85), rgba(26, 0, 0, 0.95));
       animation: flicker 4s infinite alternate;
     }
 
@@ -106,11 +177,11 @@
     }
 
     ::-webkit-scrollbar-track {
-      background: rgba(23, 23, 23, 0.5);
+      background: rgba(26, 0, 0, 0.5);
     }
 
     ::-webkit-scrollbar-thumb {
-      background: rgba(234, 88, 12, 0.6);
+      background: rgba(255, 69, 0, 0.6);
       border-radius: 4px;
     }
 
@@ -122,6 +193,73 @@
     .song-preview.active {
       display: block;
     }
+
+    .song-url {
+      display: block;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* Mobile adjustments */
+    @media (max-width: 768px) {
+      :root {
+        --font-size: 48px;
+        --padding: 5px 10px;
+        --letter-spacing: 1px;
+        --shadow1: 4px;
+        --shadow2: 8px;
+        --shadow3: 16px;
+      }
+      .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+      }
+      input, button {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+      }
+      .flame-card {
+        padding: 1rem;
+      }
+      .text-3xl {
+        font-size: 1.5rem;
+      }
+      .text-xs {
+        font-size: 0.65rem;
+      }
+      .fiery-text {
+        -webkit-text-stroke: 1px var(--fiery-red); /* Thinner outline for mobile */
+      }
+    }
+
+    @media (max-width: 480px) {
+      :root {
+        --font-size: 36px;
+        --padding: 5px 8px;
+        --letter-spacing: 0.5px;
+        --shadow1: 3px;
+        --shadow2: 6px;
+        --shadow3: 12px;
+      }
+      input, button {
+        font-size: 0.8rem;
+        padding: 0.4rem 0.8rem;
+      }
+      .flame-card {
+        padding: 0.75rem;
+      }
+      .text-3xl {
+        font-size: 1.25rem;
+      }
+      .text-xs {
+        font-size: 0.6rem;
+      }
+      .fiery-text {
+        -webkit-text-stroke: 0.8px var(--fiery-red); /* Even thinner for small screens */
+      }
+    }
   </style>
 
   <script>
@@ -132,9 +270,9 @@
             background: 'hsl(var(--background))',
             foreground: 'hsl(var(--foreground))',
             primary: { DEFAULT: 'hsl(var(--primary))', foreground: 'hsl(var(--primary-foreground))' },
-            amber: { '500': '#f59e0b' },
-            red: { '700': '#b91c1c' },
-            orange: { '600': '#ea580c' },
+            amber: { '500': '#ff4500' },
+            red: { '700': '#ff0000' },
+            orange: { '600': '#cc3300' },
             jungle: { 'dark': 'hsl(var(--jungle-dark))' }
           }
         }
@@ -146,16 +284,16 @@
   <!-- Flame Background -->
   <div class="flame-background"></div>
 
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 py-8 max-w-full">
     <!-- Header with Phoenix Logo -->
     <header class="flex items-center justify-center mb-10">
       <div class="w-12 h-12 mr-3 animate-phoenix-glow">
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" class="w-full h-full">
           <defs>
             <radialGradient id="phoenixGradient" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
-              <stop offset="0%" stop-color="#FFF082" />
-              <stop offset="40%" stop-color="#F59E0B" />
-              <stop offset="100%" stop-color="#B91C1C" />
+              <stop offset="0%" stop-color="#ff4500" />
+              <stop offset="40%" stop-color="#ff0000" />
+              <stop offset="100%" stop-color="#cc3300" />
             </radialGradient>
           </defs>
           <g transform="translate(50 50)">
@@ -163,49 +301,70 @@
             <path d="M-5,-10 C-25,-30 -40,-20 -45,-5 C-25,-10 -15,0 -5,10 Z" fill="url(#phoenixGradient)" />
             <path d="M5,-10 C25,-30 40,-20 45,-5 C25,-10 15,0 5,10 Z" fill="url(#phoenixGradient)" />
             <path d="M-10,15 C-5,25 0,35 0,40 C0,35 5,25 10,15" fill="url(#phoenixGradient)" />
-            <circle cx="0" cy="-20" r="5" fill="#FFF082" />
-            <path d="M0,-20 L4,-17 L0,-14 L-4,-17 Z" fill="#B91C1C" />
+            <circle cx="0" cy="-20" r="5" fill="#ff4500" />
+            <path d="M0,-20 L4,-17 L0,-14 L-4,-17 Z" fill="#cc3300" />
           </g>
         </svg>
       </div>
-      <h1 class="text-4xl font-cinzel font-bold flame-text">Jungle Radio Request Line</h1>
+      <h1 class="fiery-text">Jungle Radio Request Line</h1>
     </header>
 
     <!-- Main Content -->
     <main class="flex flex-col lg:flex-row gap-8 max-w-6xl mx-auto">
       <!-- Form Section -->
-      <section class="lg:w-1/2 flex flex-col">
+      <section class="lg:w-2/5 flex flex-col">
         <div class="flame-card p-6 md:p-8 h-full">
-          <h2 class="text-3xl font-cinzel mb-6 text-center flame-text">Submit a Song</h2>
+          <h2 class="text-3xl font-cinzel mb-6 text-center text-[#ff4500]">Submit a Song</h2>
           <form id="request-form" class="space-y-4">
             <div>
-              <label class="text-white/80 block mb-2">Music Link (YouTube or Spotify)</label>
+              <label class="text-white/80 block mb-2">Music Link (YouTube or Spotify, optional)</label>
               <input
                 type="url"
                 id="url"
                 name="url"
-                class="w-full px-4 py-3 bg-jungle-dark/60 border border-orange-600/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 placeholder-gray-400 text-white"
-                placeholder="Paste YouTube or Spotify link here"
-                required
+                class="w-full px-4 py-3 bg-jungle-dark/60 border border-[#ff4500]/50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff4500]/50 placeholder-gray-400 text-white"
+                placeholder="Paste YouTube or Spotify link (optional)"
                 aria-describedby="url-error"
               >
-              <div id="url-error" class="error mt-1 text-red-500"></div>
+              <div id="url-error" class="error mt-1 text-[#ff0000]"></div>
             </div>
             <div>
-              <label class="text-white/80 block mb-2">Your Name (Optional)</label>
+              <label class="text-white/80 block mb-2">Song Title (required if no link)</label>
+              <input
+                type="text"
+                id="title"
+                name="title"
+                class="w-full px-4 py-3 bg-jungle-dark/60 border border-[#ff4500]/50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff4500]/50 placeholder-gray-400 text-white"
+                placeholder="Song title"
+                maxlength="100"
+              >
+            </div>
+            <div>
+              <label class="text-white/80 block mb-2">Artist (optional)</label>
+              <input
+                type="text"
+                id="artist"
+                name="artist"
+                class="w-full px-4 py-3 bg-jungle-dark/60 border border-[#ff4500]/50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff4500]/50 placeholder-gray-400 text-white"
+                placeholder="Artist name"
+                maxlength="100"
+              >
+            </div>
+            <div>
+              <label class="text-white/80 block mb-2">Your Name (optional)</label>
               <input
                 type="text"
                 id="name"
                 name="requesterName"
-                class="w-full px-4 py-3 bg-jungle-dark/60 border border-orange-600/50 rounded-md focus:outline-none focus:ring-2 focus:ring-amber-500/50 placeholder-gray-400 text-white"
-                placeholder="Your name (optional)"
+                class="w-full px-4 py-3 bg-jungle-dark/60 border border-[#ff4500]/50 rounded-md focus:outline-none focus:ring-2 focus:ring-[#ff4500]/50 placeholder-gray-400 text-white"
+                placeholder="Your name"
                 maxlength="50"
               >
             </div>
             <button
               type="submit"
               id="submit-btn"
-              class="w-full py-4 px-6 bg-gradient-to-b from-amber-500 to-red-700 rounded-md font-bold text-white hover:opacity-90 transition-all duration-300 shadow-lg shadow-red-700/20 flex items-center justify-center space-x-2 animate-flame"
+              class="w-full py-4 px-6 bg-gradient-to-b from-[#ff4500] to-[#ff0000] rounded-md font-bold text-white hover:opacity-90 transition-all duration-300 shadow-lg shadow-[#ff0000]/20 flex items-center justify-center space-x-2 animate-flame"
             >
               <span>Submit Request</span>
               <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-5 w-5">
@@ -217,9 +376,9 @@
       </section>
 
       <!-- Requests Section -->
-      <section class="lg:w-1/2 flex flex-col">
+      <section class="lg:w-3/5 flex flex-col">
         <div class="flame-card p-6 md:p-8 h-full">
-          <h2 class="text-3xl font-cinzel mb-6 text-center flame-text">Requested Songs</h2>
+          <h2 class="text-3xl font-cinzel mb-6 text-center text-[#ff4500]">Requested Songs</h2>
           <div id="requests-list" class="space-y-2"></div>
         </div>
       </section>
@@ -229,7 +388,7 @@
     <div class="admin-toggle text-center mt-6 mb-8">
       <button
         id="toggle-admin"
-        class="py-1 px-3 bg-gradient-to-b from-amber-500 to-red-700 rounded-md font-bold text-white text-sm hover:opacity-90 transition-all duration-300"
+        class="py-1 px-3 bg-gradient-to-b from-[#ff4500] to-[#ff0000] rounded-md font-bold text-white text-sm hover:opacity-90 transition-all duration-300 animate-flame"
       >Toggle Admin Mode</button>
     </div>
   </div>
@@ -241,6 +400,7 @@
 
     // Extract song title from URL
     function extractSongTitle(url) {
+      if (!url) return null; // No URL provided, rely on user-entered title
       try {
         const urlObj = new URL(url);
         const params = new URLSearchParams(urlObj.search);
@@ -248,17 +408,14 @@
 
         // YouTube
         if (urlObj.hostname.includes('youtube.com') || urlObj.hostname.includes('youtu.be')) {
-          // Check query parameters for title-like data
           title = params.get('title') || params.get('t') || params.get('name');
           if (!title) {
-            // Try to extract from path or video ID
             const pathParts = urlObj.pathname.split('/').filter(Boolean);
             if (urlObj.hostname.includes('youtu.be')) {
-              title = pathParts[0]; // e.g., dQw4w9WgXcQ
+              title = pathParts[0];
             } else {
               title = params.get('v') || pathParts[pathParts.indexOf('watch') + 1] || '';
             }
-            // Clean up potential ID
             title = title
               ? decodeURIComponent(title)
                   .replace(/[-_]/g, ' ')
@@ -292,6 +449,7 @@
 
     // Generate embed URL for preview
     function getEmbedUrl(url) {
+      if (!url) return null; // No preview if no URL
       try {
         const urlObj = new URL(url);
         // YouTube
@@ -325,25 +483,33 @@
         }
         requests.forEach(request => {
           const item = document.createElement('div');
-          item.className = `flame-card rounded-md p-3 hover:border-amber-500/40 transition-all ${request.isProcessed ? 'opacity-60' : ''}`;
+          item.className = `flame-card rounded-md p-3 hover:border-[#ff4500]/40 transition-all`;
           const embedUrl = getEmbedUrl(request.url);
           item.innerHTML = `
             <div class="flex items-center space-x-2">
               <div class="flex-shrink-0 w-10 h-10 bg-jungle-dark/50 rounded flex items-center justify-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-amber-500">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-[#ff4500]">
                   <path d="M9 18V5l12-2v13"></path>
                   <circle cx="6" cy="18" r="3"></circle>
                   <circle cx="18" cy="16" r="3"></circle>
                 </svg>
               </div>
               <div class="flex-grow">
-                <h3 class="font-semibold text-amber-500 text-sm truncate">${request.title || 'Unknown Song'}</h3>
+                <h3 class="font-semibold text-[#ff4500] text-sm truncate">${request.title || 'Unknown Song'}</h3>
+                ${
+                  request.artist
+                    ? `<p class="text-xs text-white/80 truncate">Artist: ${request.artist}</p>`
+                    : ''
+                }
                 <p class="text-xs text-white/80 truncate">Added by: ${request.requesterName || 'Anonymous'}</p>
-                <a href="${request.url}" target="_blank" rel="noopener noreferrer" class="text-amber-500 hover:underline text-xs truncate block">${request.url}</a>
-                ${request.isProcessed ? '<span class="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-500 rounded-full">Played</span>' : ''}
+                ${
+                  request.url
+                    ? `<a href="${request.url}" target="_blank" rel="noopener noreferrer" class="text-[#ff4500] hover:underline text-xs song-url">${request.url}</a>`
+                    : ''
+                }
                 ${
                   embedUrl
-                    ? `<button class="preview-btn mt-1 py-0.5 px-2 bg-jungle-dark/50 rounded-md text-white text-xs hover:bg-jungle-dark/70" data-id="${request.id}">Preview</button>`
+                    ? `<button class="preview-btn mt-1 py-0.5 px-2 bg-jungle-dark/50 rounded-md text-white text-xs hover:bg-jungle-dark/70 animate-flame" data-id="${request.id}">Preview</button>`
                     : ''
                 }
               </div>
@@ -351,14 +517,7 @@
                 isAdmin
                   ? `
                     <div class="flex-shrink-0 flex space-x-1 ml-2">
-                      <button class="mark-played py-0.5 px-1 bg-gradient-to-b from-amber-500 to-red-700 rounded-md text-white text-xs ${request.isProcessed ? 'opacity-50 cursor-not-allowed' : 'hover:opacity-90'}" data-id="${request.id}" ${request.isProcessed ? 'disabled' : ''}>
-                        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-0.5">
-                          <circle cx="12" cy="12" r="10"></circle>
-                          <polygon points="10 8 16 12 10 16 10 8"></polygon>
-                        </svg>
-                        Play
-                      </button>
-                      <button class="delete py-0.5 px-1 bg-red-700 rounded-md text-white text-xs hover:opacity-90" data-id="${request.id}">
+                      <button class="delete py-0.5 px-1 bg-[#ff0000] rounded-md text-white text-xs hover:opacity-90 animate-flame" data-id="${request.id}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="inline-block mr-0.5">
                           <polyline points="3 6 5 6 21 6"></polyline>
                           <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
@@ -383,17 +542,6 @@
           list.appendChild(item);
         });
         if (isAdmin) {
-          document.querySelectorAll('.mark-played').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-              const id = e.target.dataset.id;
-              const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
-              const updatedRequests = requests.map(req =>
-                req.id === id ? { ...req, isProcessed: true } : req
-              );
-              localStorage.setItem('musicRequests', JSON.stringify(updatedRequests));
-              loadRequests();
-            });
-          });
           document.querySelectorAll('.delete').forEach(btn => {
             btn.addEventListener('click', (e) => {
               const id = e.target.dataset.id;
@@ -418,10 +566,15 @@
       }
     }
 
-    // Validate URL
-    function isValidMusicUrl(url) {
-      const regex = /^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|spotify\.com)/i;
-      return regex.test(url);
+    // Validate submission
+    function validateSubmission(url, title) {
+      if (!url && !title) {
+        return 'Please provide either a YouTube/Spotify link or a song title';
+      }
+      if (url && !url.match(/^(https?:\/\/)?(www\.)?(youtube\.com|youtu\.be|spotify\.com)/i)) {
+        return 'Please enter a valid YouTube or Spotify link';
+      }
+      return null;
     }
 
     // Show error
@@ -443,12 +596,15 @@
     document.getElementById('request-form').addEventListener('submit', (e) => {
       e.preventDefault();
       const url = document.getElementById('url').value;
-      const name = document.getElementById('name').value;
+      const title = document.getElementById('title').value.trim();
+      const artist = document.getElementById('artist').value.trim();
+      const name = document.getElementById('name').value.trim();
       const submitBtn = document.getElementById('submit-btn');
 
       clearError('url-error');
-      if (!isValidMusicUrl(url)) {
-        showError('url-error', 'Please enter a valid YouTube or Spotify link');
+      const error = validateSubmission(url, title);
+      if (error) {
+        showError('url-error', error);
         return;
       }
 
@@ -456,15 +612,15 @@
       submitBtn.textContent = 'Submitting...';
 
       try {
-        const title = extractSongTitle(url);
+        const songTitle = title || extractSongTitle(url) || 'Unknown Song';
         const requests = JSON.parse(localStorage.getItem('musicRequests') || '[]');
         const newRequest = {
           id: generateId(),
-          url,
-          title,
-          requesterName: name || null,
+          url: url || null,
+          title: songTitle,
+          artist: artist || null,
+          requesterName: name || 'Anonymous',
           createdAt: new Date().toISOString(),
-          isProcessed: false,
         };
         requests.push(newRequest);
         localStorage.setItem('musicRequests', JSON.stringify(requests));
